@@ -126,7 +126,7 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     (* You can use the module T to access the functions defined in BinSTree,
        e.g. T.insert *)
-    module T = (BSTDict(C) : (DICT with type elt = C.t))
+    module T = (BinSTree(C) : (ORDERED_COLLECTION with type elt = C.t))
 
     (* Implement the remainder of the module. *)
 
