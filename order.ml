@@ -83,7 +83,7 @@ struct
                                                              
   let () = Random.self_init ()
                             
-  let generate () = (0, string_of_int (Random.int max_int))
+  let generate () = (0, string_of_int (Random.int (int_of_float (2. ** 30. -. 2.))))
                       
   let generate_gt (p, s) = (p + 1, s ^ " ++")
                                
