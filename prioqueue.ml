@@ -77,19 +77,22 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     type queue = elt list
 
-    let empty : queue =
-      failwith "ListQueue empty not implemented"
+    let empty : queue = []
 
-    let is_empty (q : queue) : bool =
-      failwith "ListQueue is_empty not implemented"
+    let is_empty (q : queue) : bool = (q = [])
 
-    let add (e : elt) (q : queue) : queue =
-      failwith "ListQueue add not implemented"
+    (* xx Do we need to do iterative process like this to add e at the correct place? *)
+    (* xx what is priority order *)
+    let rec add (e : elt) (q : queue) : queue =
+      match q with
+      | [] -> [e]
+      | hd :: tl -> if C.compare e hd = Less then e :: q else hd :: add e tl
 
     let take (q : queue) : elt * queue =
-      failwith "ListQueue take not implemented"
+      if q = [] then raise QueueEmpty else hd :: tl -> (hd, tl)
 
     let run_tests () =
+      (* I don't totally know what to do here... *)
       failwith "ListQueue run_tests not implemented"
 
     (* IMPORTANT: Don't change the implementation of to_string. *)
@@ -119,7 +122,7 @@ compiles cleanly.
 ......................................................................*)
 
 (* You'll want to uncomment this before working on this section! *)
-(*
+
 module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
   struct
     exception QueueEmpty
@@ -129,9 +132,24 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     module T = (BinSTree(C) : (ORDERED_COLLECTION with type elt = C.t))
 
     (* Implement the remainder of the module. *)
+    (* xx Yo I'm mad confused about all this. what is T, what are we trying to redo? *)
+    type elt = C.t
+
+    type queue = T.tree
+
+    let empty = T.empty
+
+    let is_empty t = (t = empty)
+
+    let add (e : elt) (q : queue) : queue = T.insert e q
+
+    let take (q : queue) = let (x = T.getmin t) in (x, T.delete x t)
+
+    let run_tests () =
+      (* I don't totally know what to do here... *)
+      failwith "ListQueue run_tests not implemented"
 
   end
- *)
 
 (*......................................................................
 Problem 4: Implementing BinaryHeap
@@ -271,7 +289,11 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     pattern match)
     ..................................................................*)
     let get_top (t : tree) : elt =
-      failwith "BinaryHeap get_top not implemented"
+      (* Repeated code... I know. *)
+      match t with
+      | Leaf (e) -> e
+      | OneBranch (e , _) -> e 
+      | TwoBranch (_, e, _, _) -> e
 
     (*..................................................................
     Takes a tree, and if the top node is greater than its children,
@@ -280,7 +302,34 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     tree too.
     ..................................................................*)
     let fix (t : tree) : tree =
-      failwith "BinaryHeap fix not implemented"
+      let replacer x y =
+      match y with
+      | Leaf e -> Leaf x
+      | OneBranch (e1, e2) -> OneBranch (x, e2)
+      | TwoBranch (s, e1, t1, t2) -> TwoBranch (s, x, t1, t2)
+      in 
+      match t with 
+      | Leaf e -> t 
+      | OneBranch (e1, e2) -> 
+        (match C.compare e1 e2 with
+        | Less -> t
+        | Greater -> OneBranch (e2, e1) (* why do we replace here????*) 
+        | Equal -> t )
+      | TwoBranch (s, e1, t1, t2) -> 
+        let a = get_top t1 in
+        let b = get_top t1 in 
+        (match C.compare a b with
+        | Less | Equal -> 
+          (match C.compare e1 a with
+           | Less -> t
+           | Equal -> t
+           | Greater -> TwoBranch (s, a, fix (replacer e1 t1), t2))
+        | Greater ->
+          (match C.compare e1 b with
+           | Less -> t 
+           | Equal -> t
+           | Greater -> TwoBranch (s, b, t1, (replacer e1 t2)))
+        )
 
     let extract_tree (q : queue) : tree =
       match q with

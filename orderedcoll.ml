@@ -113,15 +113,34 @@ module BinSTree (C : COMPARABLE)
     Hint: Use C.compare. See delete for inspiration.
     ..................................................................*)  
     let rec insert (x : elt) (t : tree) : tree =
-      failwith "insert not implemented"
+      match t with 
+      (* xx wouldn't this create more leaves then we want to?? we need [] around x? *)
+      | Leaf -> Branch (Leaf, x, Leaf) 
+      | Branch (l, lst, r) ->
+        match lst with
+        | [] -> raise (Failure "Error: Empty List" )
+        | hd :: tl -> 
+          match C.compare hd x with
+          | Less -> Branch (l, lst, insert x r)
+          | Greater -> (insert x l, lst, r)
+          | Equal -> (l, x::lst, r)
 
     (*..................................................................
     search -- Returns true if the element x is in tree t, else false.
     Hint: multiple values might compare Equal to x, but that doesn't
     necessarily mean that x itself is in the tree.
     ..................................................................*)
-    let rec search (x : elt) (t : tree) : bool =
-      failwith "search not implemented"
+(*     let rec search (x : elt) (t : tree) : bool =
+      match t with
+      | Leaf -> false
+      | Branch (l, lst, r) ->
+        match lst with 
+        | [] -> raise (Failure "Error: Empty List")
+        | hd :: tl ->
+          match C.compare hd x 
+          | Less -> search x l
+          | Greater -> search x r
+          | Equal -> true *)
 
     (* pull_min -- A useful function for removing the node with the
        minimum value from a binary tree, returning that node and the
@@ -141,6 +160,8 @@ module BinSTree (C : COMPARABLE)
        claim that it does). So, if it's in the signature, it needs to
        be in the structure. But if it's in the structure, it doesn't
        necessarily need to show up in the signature. *)
+
+       (* xx does this mean I have to change the signature to account for pull_min? *)
     let rec pull_min (t : tree) : elt list * tree =
       match t with
       | Leaf -> raise Empty
@@ -183,8 +204,14 @@ module BinSTree (C : COMPARABLE)
     the list *is* distinct, but are Equal from the perspective of the
     comparison function (like IntStringCompare).
     ..................................................................*)
-    let getmin (t : tree) : elt =
-      failwith "getmin not implemented"
+    let rec getmin (t : tree) : elt = 
+      match t with
+      Leaf -> raise Empty
+      Branch (l, lst, r) -> getmin l
+      Branch (Leaf, lst, r) ->
+        match lst with
+        | [] -> raise (Failure "list is empty")
+        | hd :: tl -> List.hd (List.rev lst)
 
     (*..................................................................
     getmax -- Returns the maximum value of the tree t. Similarly should
@@ -193,8 +220,11 @@ module BinSTree (C : COMPARABLE)
     The exception "Empty", defined within this module, might come
     in handy.
     ..................................................................*)  
-    let rec getmax (t : tree) : elt =
-      failwith "getmax not implemented"
+     let rec getmax (t : tree) : elt =
+      match t with
+      Leaf -> raise Empty
+      Branch (l, lst, r) -> getmax r
+      Branch (l, lst, Leaf) -> List.hd (List.rev lst)
 
     (* to_string -- Generates a string representation of a binary
        search tree, useful for testing! *)
@@ -320,4 +350,4 @@ on average, not in total).  We care about your responses and will use
 them to help guide us in creating future assignments.
 ......................................................................*)
 
-let minutes_spent_on_part () : int = failwith "not provided" ;;
+let minutes_spent_on_part () : int = 180 ;;
