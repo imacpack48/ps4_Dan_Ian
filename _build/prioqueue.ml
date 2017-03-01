@@ -80,11 +80,11 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     let empty : queue = []
 
     let is_empty (q : queue) : bool = (q = [])
-
+    
     let rec add (e : elt) (q : queue) : queue =
-      match q with
-      | [] -> [e]
-      | hd :: tl -> if C.compare e hd = Less then e :: q else hd :: add e tl
+          match q with
+          | [] -> [e]
+          | hd :: tl -> if C.compare e hd = Less then e :: q else hd :: add e tl
 
     let take (q : queue) : elt * queue =
       match q with
@@ -93,22 +93,22 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     let test_empty () = 
       assert (empty = [])
-
+    
     let test_is_empty () = 
       let a = C.generate () in
-      let b = [a] in
+      let b = add a empty in
       assert (not is_empty b)
-      assert (is_empty [])
+      assert (is_empty empty)
     
     let test_add () =
       let x = C.generate () in
       let y = add x empty in
-      assert (y = [x])
+      assert (y = [x]);
       let a = C.generate_gt x in
-      assert (add y a = [x; a])
+      assert (add y a = [x; a]);
       let b = C.generate_lt x in
-      assert (add y a = [b; x; a])
-
+      assert (add y a = [b; x; a]);
+    
     let test_take () = 
       (* xx simplify these by using commas.. if time *)
       let b = C.generate () in
@@ -117,18 +117,18 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let x = add a empty in
       let y = add b x in
       let z = add c y in
-      let d = take z
-      assert (d = (a, [b; c])
+      let d = take z in
+      assert (d = (a, [b; c]));
       (* xx syntax could be wrong... *)
-      assert (try take empty with | QueueEmpty -> true)
-
+      assert (try take empty with | QueueEmpty -> true);
+    
     let run_tests () =
-      test_empty ()
-      test_is_empty ()
-      test_add ()
-      test_take ()
+      test_empty ();
+      test_is_empty ();
+      test_add ();
+      test_take ();
 
-    (* IMPORTANT: Don't change the implementation of to_string. *)
+(* IMPORTANT: Don't change the implementation of to_string. *)
     let to_string (q: queue) : string =
       let rec to_string' q =
         match q with
@@ -175,7 +175,8 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     let is_empty t = (t = Empty)
 
-    let add (e : elt) (q : queue) : queue = 
+    let add (e : elt) (q : queue) : queue =
+    (* inefficient code *)
     match q with
     | Empty -> Tree (T.insert e T.empty)
     | Tree x -> Tree (T.instert e x)
