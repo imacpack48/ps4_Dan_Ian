@@ -81,6 +81,8 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     let is_empty (q : queue) : bool = (q = [])
 
+    (* xx Do we need to do iterative process like this to add e at the correct place? *)
+    (* xx what is priority order *)
     let rec add (e : elt) (q : queue) : queue =
       match q with
       | [] -> [e]
@@ -91,41 +93,8 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       | [] -> raise QueueEmpty
       | hd :: tl -> (hd, tl)
 
-    let test_empty () = 
-      assert (Empty = [])
-
-    let test_is_empty () = 
-      let a = C.generate () in
-      let b = [a]
-      assert (not is_empty b)
-      assert (is_empty [])
-    
-    let test_add () =
-      let x = C.generate () in
-      let y = add x Empty in
-      assert (y = [x])
-      let a = C.generate_gt x () in
-      assert (add y a = [x; a])
-      let b = C.generate_lt x () in
-      assert (add y a = [b; x; a])
-
-    let test_take () = 
-      (* let x = C.generate () in
-      let y = add x Empty in
-      assert (y = [x])
-      let a = C.generate_gt x () in
-      assert (add y a = [x; a])
-      let b = C.generate_lt x () in
-      assert (add y a = [b; x; a]) *)
-
-      ....test for exception case also
-
     let run_tests () =
-      test_empty ()
-      test_is_empty ()
-      test_add ()
-      test_take ()
-      
+      failwith "dope"
 
     (* IMPORTANT: Don't change the implementation of to_string. *)
     let to_string (q: queue) : string =
@@ -170,22 +139,18 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     type queue = Empty | Tree of tree
 
-    let empty = Empty
+    let empty = T.empty
 
-    let is_empty t = (t = Empty)
+    let is_empty t = (t = empty)
 
-    let add (e : elt) (q : queue) : queue = 
-    match q with
-    | Empty -> Tree (T.insert e T.empty)
-    | Tree x -> Tree (T.instert e x)
+    let add (e : elt) (q : queue) : queue = T.insert e q
 
-    let take (q : queue) = 
-      let x = T.getmin t 
-      in 
-      (x, T.delete x t)
+    let take (q : queue) = let x = T.getmin t in (x, T.delete x t)
 
     let run_tests () = 
       failwith "ListQueue run_tests not implemented"
+
+
   end
 
 (*......................................................................
@@ -389,19 +354,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     the node that we want you to return.
     ..................................................................*)
     let get_last (t : tree) : elt * queue =
-      match t with
-      | Leaf e -> (e, empty)
-      | OneBranch (e1, e2) -> (e2, Tree (Leaf e1))
-      | TwoBranch (Even, e, t1, t2) ->
-        let (e, q) = get_last t2 in
-        (match q with 
-        | Empty -> (e, Tree (OneBranch (e1, get_top t2)))
-        | Tree t -> last, Tree (TwoBranch (Odd, e1, t, t2)))
-      | TwoBranch (Odd, e, t1, t2) -> 
-        let (e, q) = get_last t1 in
-        (match q with 
-        | Empty -> (e, Tree (OneBranch (e1, get_top t1)))
-        | Tree t -> (e, Tree (TwoBranch (Even, e1, t1, t)))
+      failwith "BinaryHeap get_last not implemented"
 
     (*..................................................................
     Implements the algorithm described in the writeup. You must finish
