@@ -1,19 +1,8 @@
 ### Starting build.
 # Target: prioqueue.ml.depends, tags: { extension:ml, file:prioqueue.ml, ocaml, ocamldep, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
 ocamlfind ocamldep -modules prioqueue.ml > prioqueue.ml.depends
-# Target: order.ml.depends, tags: { extension:ml, file:order.ml, ocaml, ocamldep, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
-ocamlfind ocamldep -modules order.ml > order.ml.depends # cached
-# Target: order.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:order.cmo, file:order.ml, implem, ocaml, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
-ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o order.cmo order.ml # cached
-# Target: orderedcoll.ml.depends, tags: { extension:ml, file:orderedcoll.ml, ocaml, ocamldep, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
-ocamlfind ocamldep -modules orderedcoll.ml > orderedcoll.ml.depends # cached
-# Target: orderedcoll.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:orderedcoll.cmo, file:orderedcoll.ml, implem, ocaml, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
-ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o orderedcoll.cmo orderedcoll.ml # cached
-# Target: prioqueue.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:prioqueue.cmo, file:prioqueue.ml, implem, ocaml, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
-ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o prioqueue.cmo prioqueue.ml
-+ ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o prioqueue.cmo prioqueue.ml
-File "prioqueue.ml", line 146, characters 55-56:
-Error: This expression has type queue but an expression was expected of type
-         T.collection
++ ocamlfind ocamldep -modules prioqueue.ml > prioqueue.ml.depends
+File "prioqueue.ml", line 101, characters 6-12:
+Error: Syntax error
 Command exited with code 2.
 # Compilation unsuccessful.

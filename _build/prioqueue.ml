@@ -81,8 +81,6 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     let is_empty (q : queue) : bool = (q = [])
 
-    (* xx Do we need to do iterative process like this to add e at the correct place? *)
-    (* xx what is priority order *)
     let rec add (e : elt) (q : queue) : queue =
       match q with
       | [] -> [e]
@@ -93,8 +91,42 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       | [] -> raise QueueEmpty
       | hd :: tl -> (hd, tl)
 
+    let test_empty () = 
+      assert (empty = [])
+
+    let test_is_empty () = 
+      let a = C.generate () in
+      let b = [a] in
+      assert (not is_empty b)
+      assert (is_empty [])
+    
+    let test_add () =
+      let x = C.generate () in
+      let y = add x empty in
+      assert (y = [x])
+      let a = C.generate_gt x in
+      assert (add y a = [x; a])
+      let b = C.generate_lt x in
+      assert (add y a = [b; x; a])
+
+    let test_take () = 
+      (* xx simplify these by using commas.. if time *)
+      let b = C.generate () in
+      let a = C.generate_lt b in
+      let c = C.generate_gt b in
+      let x = add a empty in
+      let y = add b x in
+      let z = add c y in
+      let d = take z
+      assert (d = (a, [b; c])
+      (* xx syntax could be wrong... *)
+      assert (try take empty with | QueueEmpty -> true)
+
     let run_tests () =
-      failwith "dope"
+      test_empty ()
+      test_is_empty ()
+      test_add ()
+      test_take ()
 
     (* IMPORTANT: Don't change the implementation of to_string. *)
     let to_string (q: queue) : string =
@@ -139,18 +171,43 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     type queue = Empty | Tree of tree
 
-    let empty = T.empty
+    let empty = Empty
 
-    let is_empty t = (t = empty)
+    let is_empty t = (t = Empty)
 
-    let add (e : elt) (q : queue) : queue = T.insert e q
+    let add (e : elt) (q : queue) : queue = 
+    match q with
+    | Empty -> Tree (T.insert e T.empty)
+    | Tree x -> Tree (T.instert e x)
 
-    let take (q : queue) = let x = T.getmin t in (x, T.delete x t)
+    let take (q : queue) : elt * queue  = 
+      let x = T.getmin q in (x, T.delete x q)
+
+    (* These are my tests. *)
+
+    let is_empty_test () =
+      let a = empty in 
+      assert (is_empty a)
+
+    let add_take_test () = 
+      let a = empty in 
+      let b = C.generate () in
+      let c = add b a in
+      assert (c = Branch(Leaf, [b], Leaf))
+      let d = C.generate_gt b in
+      let e = add d c in
+      assert (e = Branch (Leaf, [b], Branch (Leaf, [d], Leaf)))
+      let f = take e in 
+      assert (f = (b, Branch (Leaf, [d], Leaf)))
 
     let run_tests () = 
-      failwith "ListQueue run_tests not implemented"
+      is_empty_test ()
+      add_take_test ()
 
-
+      (* Use size to test take *)
+      (* Your nodes should track whether they are odd or even.
+         This will help you keep your tree balanced at all times. 
+         write size function that helps with implementation of take *)
   end
 
 (*......................................................................
@@ -235,7 +292,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       | Empty -> "Empty"
       | Tree t -> to_string' t
 
-    let is_empty (q : queue) = q = Empty
+    let is_empty (q : queue) = (q = Empty)
 
     (* Adds element e to the queue q *)
     let add (e : elt) (q : queue) : queue =
@@ -291,7 +348,6 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     pattern match)
     ..................................................................*)
     let get_top (t : tree) : elt =
-      (* Repeated code... I know. *)
       match t with
       | Leaf (e) -> e
       | OneBranch (e , _) -> e 
@@ -304,33 +360,30 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     tree too.
     ..................................................................*)
     let rec fix (t : tree) : tree =
-      let replacer x y =
+      let replace_top (x : elt) (y : tree) =
       match y with
       | Leaf e -> Leaf x
       | OneBranch (e1, e2) -> OneBranch (x, e2)
-      | TwoBranch (s, e1, t1, t2) -> TwoBranch (s, x, t1, t2)
+      | TwoBranch (balance, e1, t1, t2) -> TwoBranch (balance, x, t1, t2)
       in 
       match t with 
       | Leaf e -> t 
       | OneBranch (e1, e2) -> 
         (match C.compare e1 e2 with
-        | Less -> t
-        | Greater -> OneBranch (e2, e1) (* why do we replace here????*) 
-        | Equal -> t )
-      | TwoBranch (s, e1, t1, t2) -> 
+        | Less | Equal -> t
+        | Greater -> OneBranch (e2, e1)
+      | TwoBranch (balance, e1, t1, t2) -> 
         let a = get_top t1 in
-        let b = get_top t1 in 
+        let b = get_top t2 in 
         (match C.compare a b with
         | Less | Equal -> 
           (match C.compare e1 a with
-           | Less -> t
-           | Equal -> t
-           | Greater -> TwoBranch (s, a, fix (replacer e1 t1), t2))
+           | Less | Equal -> t
+           | Greater -> TwoBranch (balance, a, fix (replace_top e1 t1), t2))
         | Greater ->
           (match C.compare e1 b with
-           | Less -> t 
-           | Equal -> t
-           | Greater -> TwoBranch (s, b, t1, (replacer e1 t2)))
+           | Less | Equal -> t 
+           | Greater -> TwoBranch (balance, b, t1, fix (replace_top e1 t2)))
         )
 
     let extract_tree (q : queue) : tree =
@@ -354,7 +407,19 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     the node that we want you to return.
     ..................................................................*)
     let get_last (t : tree) : elt * queue =
-      failwith "BinaryHeap get_last not implemented"
+      match t with
+      | Leaf e -> (e, Empty)
+      | OneBranch (e1, e2) -> (e2, Tree (Leaf e1))
+      | TwoBranch (Even, e, t1, t2) -> (* why is Even not changing color?*)
+        let (last, q1) = get_last t2 in
+        (match q1 with 
+        | Empty -> (last, Tree (OneBranch (e, get_top t1)))
+        | Tree t -> (last, Tree (TwoBranch (Odd, e, t1, t))))
+      | TwoBranch (Odd, e, t1, t2) -> 
+        let (last, q2) = get_last t1 in
+        (match q2 with 
+        | Empty -> (last, Tree (OneBranch (e, get_top t2)))
+        | Tree t -> (last, Tree (TwoBranch (Even, e, t, t2)))
 
     (*..................................................................
     Implements the algorithm described in the writeup. You must finish
@@ -369,7 +434,6 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
       (* If the tree is a OneBranch, then the new queue is just a Leaf *)
       | OneBranch (e1, e2) -> e1, Tree (Leaf e2)
-
       (*
       Removing an item from an even tree results in an odd tree. This
       implementation replaces the root node with the most recently inserted
@@ -384,9 +448,58 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
           | Empty -> (e, Tree (fix (OneBranch (last, get_top t1))))
           | Tree t2' -> (e, Tree (fix (TwoBranch (Odd, last, t1, t2')))))
           (* Implement the odd case! *)
-          | TwoBranch (Odd, _e, _t1, _t2) -> failwith "BinaryHeap take incomplete"
+      | TwoBranch (Odd, e, t1, t2) ->  (* xx why are there _ before everything*)
+        let (last, q1') = get_last t1 in
+        (match q1' with 
+         | Empty -> (e, Tree (fix (OneBranch (last, get_top t2)) 
+         (* are we sure that odd returns odd??? *)
+         | Tree t1' -> (e, Tree (fix (TwoBranch (Odd, last, t1', t2)))))  
 
-    let run_tests () = failwith "BinaryHeap run_tests not implemented"
+    let is_empty_test () =
+      let a = empty in 
+      assert (is_empty a)
+    
+    let add_test () =
+      (* maybe it doesn't fix all of the way...
+         for now, I'll pretend like it works all the way and if I need
+         to change it, I'll save the test for fix. *)
+      let x = C.generate () in
+      let x1 = add x Empty in (* empty or Empty??? *)
+      assert (x1 = Leaf x)
+      let y = C.generate_gt x in
+      let w = add y x1 in
+      assert (w = OneBranch (x, y))
+      let z = C.generate_lt x in
+      let v = add z w in
+      assert (v = OneBranch(z, x))
+      assert (add z w = TwoBranch (Even, z, Leaf x, Leaf y))
+      let s = add y v in
+      assert (s = TwoBranch (Even, z, Leaf x, Leaf y))
+      let u = C.generate_lt z in
+      assert(add u s = TwoBranch(Odd, u, OneBranch(z, x), Leaf y))
+      let t = C.generate_gt y in
+      let p = add t s in
+      assert (p = TwoBranch (Odd, z, OneBranch(x, t), Leaf y))
+      let r = C.generate_lt u in
+      assert (add r p = TwoBranch (Even, r, TwoBranch (Even, z, Leaf x, Leaf t), Leaf y))
+      let q = C.generate_gt t in
+      assert (add q p = TwoBranch (Even, z, TwoBranch (Even, x, Leaf q, Leaf t), Leaf y))
+
+
+(*     let take_test () =
+
+    let get_last_test () =
+
+    let fix_test () = *)
+
+
+    let run_tests () = failwith "not implemented"
+(*       is_empty ()
+      take ()
+      get_last ()
+      add ()
+      fix () *)
+
   end
 
 (*......................................................................
@@ -416,22 +529,17 @@ module IntListQueue = (ListQueue(IntCompare) :
 module IntHeapQueue = (BinaryHeap(IntCompare) :
                          PRIOQUEUE with type elt = IntCompare.t)
 
-(* Uncomment this once your TreeQueue implementation is complete
-
 module IntTreeQueue = (TreeQueue(IntCompare) :
                         PRIOQUEUE with type elt = IntCompare.t)
-
-*)
 
 (* Store the whole modules in these variables *)
 let list_module = (module IntListQueue :
                      PRIOQUEUE with type elt = IntCompare.t)
 let heap_module = (module IntHeapQueue :
                      PRIOQUEUE with type elt = IntCompare.t)
-(*
 let tree_module = (module IntTreeQueue :
                      PRIOQUEUE with type elt = IntCompare.t)
-*)
+
 
 (* Implementing sort using generic priority queues. *)
 let sort (m : (module PRIOQUEUE with type elt=IntCompare.t)) (lst : int list) =
@@ -444,21 +552,19 @@ let sort (m : (module PRIOQUEUE with type elt=IntCompare.t)) (lst : int list) =
   let pq = List.fold_right P.add lst P.empty in
   List.rev (extractor pq [])
 
-
 (* Now, we can pass in the modules into sort and get out different
    sorts. *)
 
 (* Sorting with a priority queue with an underlying heap
    implementation is equivalent to heap sort! *)
+
 let heapsort = sort heap_module ;;
 
 (* Sorting with a priority queue with your underlying tree
    implementation is *almost* equivalent to treesort; a real treesort
    relies on self-balancing binary search trees *)
 
-(*
 let treesort = sort tree_module ;;
-*)
 
 (* Sorting with a priority queue with an underlying unordered list
    implementation is equivalent to selection sort! If your

@@ -114,16 +114,15 @@ module BinSTree (C : COMPARABLE)
     ..................................................................*)  
     let rec insert (x : elt) (t : tree) : tree =
       match t with 
-      (* xx wouldn't this create more leaves then we want to?? we need [] around x? *)
       | Leaf -> Branch (Leaf, [x], Leaf) 
-      | Branch (l, lst, r) ->
+      | Branch (left, lst, right) ->
         match lst with
         | [] -> raise (Failure "Error: Empty List" )
         | hd :: tl -> 
           match C.compare hd x with
-          | Less -> Branch (l, lst, insert x r)
-          | Greater -> Branch (insert x l, lst, r)
-          | Equal -> Branch (l, x::lst, r)
+          | Less -> Branch (left, lst, insert x right)
+          | Greater -> Branch (insert x left, lst, right)
+          | Equal -> Branch (left, x::lst, right)
 
     (*..................................................................
     search -- Returns true if the element x is in tree t, else false.
@@ -133,13 +132,13 @@ module BinSTree (C : COMPARABLE)
       let rec search (x : elt) (t : tree) : bool =
       match t with
       | Leaf -> false
-      | Branch (l, lst, r) ->
+      | Branch (left, lst, right) ->
         match lst with 
-        | [] -> raise (Failure "Error: Empty List")
+        | [] -> raise (Failure "Error: Empty List on Branch")
         | hd :: tl ->
           match C.compare hd x with
-          | Less -> search x l
-          | Greater -> search x r
+          | Less -> search x left
+          | Greater -> search x right
           | Equal -> true
 
     (* pull_min -- A useful function for removing the node with the
@@ -161,7 +160,6 @@ module BinSTree (C : COMPARABLE)
        be in the structure. But if it's in the structure, it doesn't
        necessarily need to show up in the signature. *)
 
-       (* xx does this mean I have to change the signature to account for pull_min? *)
     let rec pull_min (t : tree) : elt list * tree =
       match t with
       | Leaf -> raise Empty
@@ -207,11 +205,8 @@ module BinSTree (C : COMPARABLE)
     let rec getmin (t : tree) : elt = 
       match t with
       | Leaf -> raise Empty
-      | Branch (l, lst, r) -> getmin l
-      | Branch (Leaf, lst, r) ->
-        match lst with
-        | [] -> raise (Failure "list is empty")
-        | hd :: tl -> List.hd (List.rev lst)
+      | Branch (left, lst, right) -> getmin left
+      | Branch (Leaf, lst, right) -> List.hd (List.rev lst)
 
     (*..................................................................
     getmax -- Returns the maximum value of the tree t. Similarly should
@@ -223,8 +218,8 @@ module BinSTree (C : COMPARABLE)
      let rec getmax (t : tree) : elt =
       match t with
       | Leaf -> raise Empty
-      | Branch (l, lst, r) -> getmax r
-      | Branch (l, lst, Leaf) -> List.hd (List.rev lst)
+      | Branch (left, lst, right) -> getmax right
+      | Branch (left, lst, Leaf) -> List.hd (List.rev lst)
 
     (* to_string -- Generates a string representation of a binary
        search tree, useful for testing! *)
@@ -261,7 +256,6 @@ module BinSTree (C : COMPARABLE)
       let t = insert z t in
       assert (t = Branch(Branch(Leaf, [z], Leaf),[x;x],
        Branch(Leaf, [y], Leaf)));
-      (* Can add further cases here *)
       ()
   
     (* Insert a bunch of elements, and test to make sure that we
@@ -296,6 +290,7 @@ module BinSTree (C : COMPARABLE)
        across the various code-paths, rather than it is to test
        exhaustively that our code does the right thing on every single
        possible input.  *)
+
     let test_getmax () =
       let x = C.generate () in
       let x2 = C.generate_lt x in
@@ -350,4 +345,4 @@ on average, not in total).  We care about your responses and will use
 them to help guide us in creating future assignments.
 ......................................................................*)
 
-let minutes_spent_on_part () : int = 180 ;;
+let minutes_spent_on_part () : int = 200 ;;

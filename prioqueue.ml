@@ -96,7 +96,7 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     let test_is_empty () = 
       let a = C.generate () in
-      let b = [a]
+      let b = [a] in
       assert (not is_empty b)
       assert (is_empty [])
     
@@ -196,9 +196,9 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       assert (c = Branch(Leaf, [b], Leaf))
       let d = C.generate_gt b in
       let e = add d c in
-      assert (e = Branch (Leaf, [b], Branch (Leaf, [y], Leaf)))
+      assert (e = Branch (Leaf, [b], Branch (Leaf, [d], Leaf)))
       let f = take e in 
-      assert (f = (b, Branch (Leaf, [y], Leaf)))
+      assert (f = (b, Branch (Leaf, [d], Leaf)))
 
     let run_tests () = 
       is_empty_test ()
@@ -383,7 +383,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
         | Greater ->
           (match C.compare e1 b with
            | Less | Equal -> t 
-           | Greater -> TwoBranch (balance, b, t1, (replace_top e1 t2)))
+           | Greater -> TwoBranch (balance, b, t1, fix (replace_top e1 t2)))
         )
 
     let extract_tree (q : queue) : tree =
@@ -410,16 +410,16 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       match t with
       | Leaf e -> (e, Empty)
       | OneBranch (e1, e2) -> (e2, Tree (Leaf e1))
-      | TwoBranch (Even, e, t1, t2) -> (* why is Even not changing?*)
-        let (last, q) = get_last t2 in
-        (match q with 
-        | Empty -> (last, Tree (OneBranch (e1, get_top t2)))
-        | Tree t -> (last, Tree (TwoBranch (Odd, e1, t, t2))))
+      | TwoBranch (Even, e, t1, t2) -> (* why is Even not changing color?*)
+        let (last, q1) = get_last t2 in
+        (match q1 with 
+        | Empty -> (last, Tree (OneBranch (e, get_top t1)))
+        | Tree t -> (last, Tree (TwoBranch (Odd, e, t1, t))))
       | TwoBranch (Odd, e, t1, t2) -> 
-        let (last, q) = get_last t1 in
-        (match q with 
-        | Empty -> (last, Tree (OneBranch (e1, get_top t1)))
-        | Tree t -> (last, Tree (TwoBranch (Even, e1, t1, t)))
+        let (last, q2) = get_last t1 in
+        (match q2 with 
+        | Empty -> (last, Tree (OneBranch (e, get_top t2)))
+        | Tree t -> (last, Tree (TwoBranch (Even, e, t, t2)))
 
     (*..................................................................
     Implements the algorithm described in the writeup. You must finish
@@ -448,14 +448,49 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
           | Empty -> (e, Tree (fix (OneBranch (last, get_top t1))))
           | Tree t2' -> (e, Tree (fix (TwoBranch (Odd, last, t1, t2')))))
           (* Implement the odd case! *)
-       | TwoBranch (Odd, e, t1, t2) ->  (* xx why are there _ before everything*)
-          let (last, q1') = get_last t1 in
-          (match q1' with 
-           | Empty -> (e, Tree (fix (OneBranch (last, get_top t2)) 
-           (* are we sure that odd returns odd *)
-           | Tree t1' -> (e, Tree (fix (TwoBranch (Odd, last, t1', t2)))))  
+      | TwoBranch (Odd, e, t1, t2) ->  (* xx why are there _ before everything*)
+        let (last, q1') = get_last t1 in
+        (match q1' with 
+         | Empty -> (e, Tree (fix (OneBranch (last, get_top t2)) 
+         (* are we sure that odd returns odd??? *)
+         | Tree t1' -> (e, Tree (fix (TwoBranch (Odd, last, t1', t2)))))  
 
+    let is_empty_test () =
+      let a = empty in 
+      assert (is_empty a)
     
+    let add_test () =
+      (* maybe it doesn't fix all of the way...
+         for now, I'll pretend like it works all the way and if I need
+         to change it, I'll save the test for fix. *)
+      let x = C.generate () in
+      let x1 = add x Empty in (* empty or Empty??? *)
+      assert (x1 = Leaf x)
+      let y = C.generate_gt x in
+      let w = add y x1 in
+      assert (w = OneBranch (x, y))
+      let z = C.generate_lt x in
+      let v = add z w in
+      assert (v = OneBranch(z, x))
+      assert (add z w = TwoBranch (Even, z, Leaf x, Leaf y))
+      let s = add y v in
+      assert (s = TwoBranch (Even, z, Leaf x, Leaf y))
+      let u = C.generate_lt z in
+      assert(add u s = TwoBranch(Odd, u, OneBranch(z, x), Leaf y))
+      let t = C.generate_gt y in
+      let p = add t s in
+      assert (p = TwoBranch (Odd, z, OneBranch(x, t), Leaf y))
+      let r = C.generate_lt u in
+      assert (add r p = TwoBranch (Even, r, TwoBranch (Even, z, Leaf x, Leaf t), Leaf y))
+      let q = C.generate_gt t in
+      assert (add q p = TwoBranch (Even, z, TwoBranch (Even, x, Leaf q, Leaf t), Leaf y))
+
+
+(*     let take_test () =
+
+    let get_last_test () =
+
+    let fix_test () = *)
 
 
     let run_tests () = failwith "not implemented"
