@@ -1,6 +1,6 @@
 ### Starting build.
 # Target: prioqueue.ml.depends, tags: { extension:ml, file:prioqueue.ml, ocaml, ocamldep, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
-ocamlfind ocamldep -modules prioqueue.ml > prioqueue.ml.depends # cached
+ocamlfind ocamldep -modules prioqueue.ml > prioqueue.ml.depends
 # Target: order.ml.depends, tags: { extension:ml, file:order.ml, ocaml, ocamldep, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
 ocamlfind ocamldep -modules order.ml > order.ml.depends # cached
 # Target: order.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:order.cmo, file:order.ml, implem, ocaml, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
@@ -12,8 +12,10 @@ ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o orde
 # Target: prioqueue.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:prioqueue.cmo, file:prioqueue.ml, implem, ocaml, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
 ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o prioqueue.cmo prioqueue.ml
 + ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o prioqueue.cmo prioqueue.ml
-File "prioqueue.ml", line 182, characters 61-62:
-Error: This expression has type queue but an expression was expected of type
-         T.collection
+File "prioqueue.ml", line 165, characters 2-1574:
+Error: Signature mismatch:
+       ...
+       The value `to_string' is required but not provided
+       File "prioqueue.ml", line 53, characters 2-33: Expected declaration
 Command exited with code 2.
 # Compilation unsuccessful.
