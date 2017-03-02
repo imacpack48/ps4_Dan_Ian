@@ -197,21 +197,21 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       assert (is_empty a)
 
 (* xx remember to use BinSTree for assert statment (T dot whatever) *)
-    let add_take_test () = false
-(*      let a = empty in 
+    let add_take_test () = false 
+     (* let a = empty in 
       let b = C.generate () in
       let c = add b a in
-      let _ = assert (c = T.insert ? T.empty) in
-      let _ = assert (Branch (Leaf, [b], Leaf)) in
+      let _ = assert (c = Tree (T.insert b T.empty)) in
+      let _ = assert (Branch (Leaf, [b], Leaf)) in 
       let d = C.generate_gt b in
       let e = add d c in
-      let _ = assert (e = Branch (Leaf, [b], Branch (Leaf, [d], Leaf))) in
+      let _ = assert (e = Tree (T.insert d (T.insert b T.empty))) in
       let f = take e in 
-      assert (f = (b, Branch (Leaf, [d], Leaf)))
+      assert (f =  (b, Tree (T.delete b (T.insert d (T.insert b empty)))))
 *)
     let run_tests () = 
       is_empty_test ();
-(*       add_take_test (); *)
+     (* add_take_test ();*) 
     ()
 
       (* Use size to test take *)
