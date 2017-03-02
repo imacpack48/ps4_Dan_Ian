@@ -315,7 +315,7 @@ module BinSTree (C : COMPARABLE)
        
     let run_tests () =
       test_insert ();
-      test_search ();
+(*       test_search (); *)
       test_getmax ();
       test_getmin ();
       test_delete ();

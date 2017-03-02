@@ -472,33 +472,33 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let a = empty in 
       assert (is_empty a)
     
-    let add_test () = false
-      (* maybe it doesn't fix all of the way...
-         for now, I'll pretend like it works all the way and if I need
-         to change it, I'll save the test for fix. *)
-      (*let x = C.generate () in
+    let add_test () =
+      let x = C.generate () in
       let x1 = add x Empty in (* empty or Empty??? *)
-      let _ = assert (x1 = Leaf x) in
+      let _ = assert (x1 = Tree (Leaf x)) in
       let y = C.generate_gt x in
       let w = add y x1 in
-      let _ = assert (w = OneBranch (x, y)) in
+      let _ = assert (w = Tree (OneBranch (x, y))) in
       let z = C.generate_lt x in
       let v = add z w in
-      let _ = assert (v = OneBranch(z, x)) in
-      let _ = assert (add z w = TwoBranch (Even, z, Leaf x, Leaf y)) in
-      let s = add y v in
-      let _ = assert (s = TwoBranch (Even, z, Leaf x, Leaf y)) in
+      let _ = assert (add z w = Tree (TwoBranch (Even, z, Leaf y, Leaf x))) in
       let u = C.generate_lt z in
-      let _ = assert(add u s = TwoBranch(Odd, u, OneBranch(z, x), Leaf y)) in
+      assert (add u v = Tree (TwoBranch(Odd, u, OneBranch(z, y), Leaf x)))
+      
+      (*
       let t = C.generate_gt y in
-      let p = add t s in
-      let _ = assert (p = TwoBranch (Odd, z, OneBranch(x, t), Leaf y)) in
+      let p = add t v in
+      assert (p = Tree (TwoBranch (Even, z, OneBranch(z, y), OneBranch(x, t))))
+      
       let r = C.generate_lt u in
-      let _ = assert (add r p = TwoBranch (Even, r, TwoBranch (Even, z, Leaf x, Leaf t), Leaf y)) in
+      let _ = assert (add r p = Tree (TwoBranch (Even, r, TwoBranch (Even, z, Leaf x, Leaf t), Leaf y))) in
       let q = C.generate_gt t in
-      assert (add q p = TwoBranch (Even, z, TwoBranch (Even, x, Leaf q, Leaf t), Leaf y))
+      assert (add q p = Tree (TwoBranch (Even, z, TwoBranch (Even, x, Leaf q, Leaf t), Leaf y))) *)
 
-*)(*     let take_test () =
+(*       let s = add y v in
+      assert (s = Tree (TwoBranch (Even, z, Leaf y, Leaf x))) *)
+
+(*     let take_test () =
 
     let get_last_test () =
 
@@ -506,7 +506,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
 
     let run_tests () = 
-       is_empty_test ();
+      is_empty_test ();
       add_test ();
     ()
 
@@ -593,6 +593,23 @@ let selectionsort = sort list_module
 
 (* You should test that these sorts all correctly work, and that lists
    are returned in non-decreasing order. *)
+
+let sort_tests =
+    let a = [1;4;2;3] in
+    let b = [1;2;3;4] in
+    let _ = assert (heapsort a = b) in
+    let _ = assert (treesort a = b) in
+    let _ = assert (selectionsort a = b) in
+    let c = [0] in
+    let _ = assert (heapsort c = c) in
+    let _ = assert (treesort c = c) in
+    let _ = assert (selectionsort c = c) in
+    let d = [5;3;1] in
+    let e = [1;3;5] in
+    let _ = assert (heapsort d = e) in
+    let _ = assert (treesort d = e) in
+    assert (selectionsort d = e)
+
 
 (*......................................................................
 Section 4: Challenge problem: Sort function
