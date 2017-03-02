@@ -123,7 +123,7 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let z = add c y in
       let d = take z in
       assert (d = (a, [b; c]))
-      assert (try take empty = (a, empty) with QueueEmpty -> true)
+      assert (try take empty = (a, x) with QueueEmpty -> true)
 
   let run_tests () =
       test_empty ();
@@ -203,7 +203,7 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let e = add d c in
       let _ = assert (e = (T.insert d (T.insert b T.empty))) in
       let f = take e in 
-      assert (f = (b, (T.delete b (T.insert d (T.insert b T.empty)))))
+      assert (f = (b, (T.insert d (T.insert b T.empty)))) 
 
     let run_tests () = 
       is_empty_test ();
