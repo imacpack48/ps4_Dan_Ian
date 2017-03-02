@@ -174,21 +174,17 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     type tree = T.collection
 
     (* we used to include the option Empty below... *)
-    type queue = Leaf | Tree of tree
+    type queue = tree
 
-    let empty = Leaf
+    let empty = T.empty
 
     let is_empty t = (t = empty)
 
     let add (e : elt) (q : queue) : queue = 
-      match q with 
-      | empty -> raise QueueEmpty
-      | Tree t -> Tree (T.insert e t)
+      T.insert e q
     
     let take (q : queue) : elt * queue  = 
-      match q with 
-      | Tree t -> let x = T.getmin t in (x, Tree (T.delete x t))
-      | empty -> raise QueueEmpty
+      let x = T.getmin q in (x, (T.delete x q))
 
     (* These are my tests. *)
 
