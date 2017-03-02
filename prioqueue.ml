@@ -505,10 +505,13 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     let fix_test () = *)
 
 
-    let run_tests () = failwith "not implemented" 
-(*       is_empty ()
+    let run_tests () = 
+       is_empty_test ();
+      add_test ();
+    ()
+
+(*
       take ()
-      get_last ()
       add ()
       fix () *)
 

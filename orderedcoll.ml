@@ -218,8 +218,8 @@ module BinSTree (C : COMPARABLE)
      let rec getmax (t : tree) : elt =
       match t with
       | Leaf -> raise Empty
-      | Branch (left, lst, right) -> getmax right
       | Branch (left, lst, Leaf) -> List.hd (List.rev lst)
+      | Branch (left, lst, right) -> getmax right
 
     (* to_string -- Generates a string representation of a binary
        search tree, useful for testing! *)
