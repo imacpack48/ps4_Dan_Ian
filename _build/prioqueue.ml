@@ -109,7 +109,7 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let _ = assert (y = [b]) in
       let c = C.generate_gt b in
       let d = add c y in
-      let _ = assert (d = [c; b]) in
+      let _ = assert (d = [b; c]) in
       let a = C.generate_lt b in
       assert (add a d = [a; b; c])
     
@@ -174,50 +174,51 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     type tree = T.collection
 
     (* we used to include the option Empty below... *)
-    type queue = Empty | Tree of tree
+    type queue = tree
 
-    let empty = Empty
+    let empty = T.empty
 
     let is_empty t = (t = empty)
 
     let add (e : elt) (q : queue) : queue = 
-      match q with 
-      | Empty -> raise QueueEmpty
-      | Tree t -> Tree (T.insert e t)
+      T.insert e q
     
     let take (q : queue) : elt * queue  = 
-      match q with 
-      |Tree t -> let x = T.getmin t in (x, Tree (T.delete x t))
-      |Empty -> raise QueueEmpty
-
+      let x = T.getmin q in (x, (T.delete x q))
+    
+    let to_string (q: queue) : string = T.to_string q
+    
     (* These are my tests. *)
 
     let is_empty_test () =
       let a = empty in 
       assert (is_empty a)
 
-    let add_take_test () = false
-(*      let a = empty in 
+(* xx remember to use BinSTree for assert statment (T dot whatever) *)
+    let add_take_test () = 
+      let a = T.empty in 
       let b = C.generate () in
       let c = add b a in
-      let _ = assert (c = T.insert ? T.empty) in
-      let _ = assert (Branch (Leaf, [b], Leaf)) in
+      let _ = assert (c = (T.insert b a)) in
       let d = C.generate_gt b in
       let e = add d c in
-      let _ = assert (e = Branch (Leaf, [b], Branch (Leaf, [d], Leaf))) in
+      let _ = assert (e = (T.insert d (T.insert b T.empty))) in
       let f = take e in 
-      assert (f = (b, Branch (Leaf, [d], Leaf))) *)
+      assert (f = (b, (T.delete b (T.insert d (T.insert b empty)))))
 
     let run_tests () = 
       is_empty_test ();
-(*       add_take_test (); *)
+      add_take_test (); 
     ()
 
+  end
       (* Use size to test take *)
       (* Your nodes should track whether they are odd or even.
          This will help you keep your tree balanced at all times. 
          write size function that helps with implementation of take *)
-  end
+    (* to_string -- Generates a string representation of a binary
+       search tree, useful for testing! *)
+
 
 (*......................................................................
 Problem 4: Implementing BinaryHeap
@@ -414,7 +415,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     brought down into a new node at the bottom of the tree. *This* is
     the node that we want you to return.
     ..................................................................*)
-    let get_last (t : tree) : elt * queue =
+    let rec get_last (t : tree) : elt * queue =
       match t with
       | Leaf e -> (e, Empty)
       | OneBranch (e1, e2) -> (e2, Tree (Leaf e1))
@@ -467,11 +468,11 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let a = empty in 
       assert (is_empty a)
     
-    let add_test () =
+    let add_test () = false
       (* maybe it doesn't fix all of the way...
          for now, I'll pretend like it works all the way and if I need
          to change it, I'll save the test for fix. *)
-      let x = C.generate () in
+      (*let x = C.generate () in
       let x1 = add x Empty in (* empty or Empty??? *)
       let _ = assert (x1 = Leaf x) in
       let y = C.generate_gt x in
@@ -493,7 +494,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let q = C.generate_gt t in
       assert (add q p = TwoBranch (Even, z, TwoBranch (Even, x, Leaf q, Leaf t), Leaf y))
 
-(*     let take_test () =
+*)(*     let take_test () =
 
     let get_last_test () =
 
@@ -539,6 +540,9 @@ module IntHeapQueue = (BinaryHeap(IntCompare) :
 module IntTreeQueue = (TreeQueue(IntCompare) :
                         PRIOQUEUE with type elt = IntCompare.t)
 
+module IntBinaryHeap = (BinaryHeap(IntCompare) :
+                        PRIOQUEUE with type elt = IntCompare.t)
+
 (* Store the whole modules in these variables *)
 let list_module = (module IntListQueue :
                      PRIOQUEUE with type elt = IntCompare.t)
@@ -546,7 +550,8 @@ let heap_module = (module IntHeapQueue :
                      PRIOQUEUE with type elt = IntCompare.t)
 let tree_module = (module IntTreeQueue :
                      PRIOQUEUE with type elt = IntCompare.t)
-
+let binary_module = (module IntBinaryHeap :
+                     PRIOQUEUE with type elt = IntCompare.t)
 
 (* Implementing sort using generic priority queues. *)
 let sort (m : (module PRIOQUEUE with type elt=IntCompare.t)) (lst : int list) =

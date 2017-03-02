@@ -123,8 +123,7 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let z = add c y in
       let d = take z in
       assert (d = (a, [b; c]))
-      (* xx DAN FIX THIS... it tests for exception...
-      assert ((try take empty with QueueEmpty -> true)=true) *)
+      assert (try take empty = (a, empty) with QueueEmpty -> true)
 
   let run_tests () =
       test_empty ();
@@ -185,7 +184,9 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     
     let take (q : queue) : elt * queue  = 
       let x = T.getmin q in (x, (T.delete x q))
-
+    
+    let to_string (q: queue) : string = T.to_string q
+    
     (* These are my tests. *)
 
     let is_empty_test () =
@@ -197,28 +198,26 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let a = T.empty in 
       let b = C.generate () in
       let c = add b a in
-      let _ = assert (c = (T.insert b T.empty)) in
-     (* let _ = assert (Branch (Leaf, [b], Leaf)) in *) 
+      let _ = assert (c = (T.insert b a)) in
       let d = C.generate_gt b in
       let e = add d c in
-      (*let _ = assert (e = (T.insert d (T.insert b T.empty))) in*)
+      let _ = assert (e = (T.insert d (T.insert b T.empty))) in
       let f = take e in 
-      assert (f =  (b, (T.delete b (T.insert d (T.insert b empty)))))
+      assert (f = (b, (T.delete b (T.insert d (T.insert b T.empty)))))
 
     let run_tests () = 
       is_empty_test ();
       add_take_test (); 
     ()
 
+  end
       (* Use size to test take *)
       (* Your nodes should track whether they are odd or even.
          This will help you keep your tree balanced at all times. 
          write size function that helps with implementation of take *)
     (* to_string -- Generates a string representation of a binary
        search tree, useful for testing! *)
-    let to_string (q: queue) =
-     T.to_string q
-  end
+
 
 (*......................................................................
 Problem 4: Implementing BinaryHeap

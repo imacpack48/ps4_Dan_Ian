@@ -223,9 +223,9 @@ module BinSTree (C : COMPARABLE)
 
     (* to_string -- Generates a string representation of a binary
        search tree, useful for testing! *)
-    let to_string (t: tree) = 
+    let to_string (t: tree) =
       let list_to_string (lst: 'a list) =
-        match lst with 
+        match lst with
         | [] -> "[]"
         | [hd] -> "[" ^ (C.to_string hd) ^ "]"
         | hd :: tl -> "[" ^ List.fold_left
@@ -234,8 +234,8 @@ module BinSTree (C : COMPARABLE)
             ^ (C.to_string b))
             (C.to_string hd) tl ^ "]"
       in
-      let rec to_string' (t: tree) = 
-        match t with 
+      let rec to_string' (t: tree) =
+        match t with
         | Leaf -> "Leaf"
         | Branch (l, m, r) ->
                  "Branch (" ^ (to_string' l) ^ ", "
