@@ -167,7 +167,6 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
        e.g. T.insert *)
     module T = (BinSTree(C) : (ORDERED_COLLECTION with type elt = C.t))
 
-    (* Implement the remainder of the module. *)
     type elt = C.t
 
     type tree = T.collection
@@ -178,14 +177,11 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     let is_empty t = (t = Empty)
 
-    let add (e : elt) (q : queue) : queue =
-    (* inefficient code *)
-    match q with
-    | Empty -> Tree (T.insert e T.empty)
-    | Tree x -> Tree (T.instert e x)
+    let add (e : elt) (q : queue) : queue = T.insert e q
 
     let take (q : queue) : elt * queue  = 
-      let x = T.getmin q in (x, T.delete x q)
+      let x = T.getmin q in 
+      (x, T.delete x q)
 
     (* These are my tests. *)
 

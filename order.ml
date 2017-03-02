@@ -4,7 +4,6 @@
                              Spring 2017
  *)
 
-
 (* order -- a type for comparison operation results *)
 type order = Less | Equal | Greater ;;
 
