@@ -84,7 +84,8 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     let rec add (e : elt) (q : queue) : queue =
       match q with
       | [] -> [e]
-      | hd :: tl -> if C.compare e hd = Less then e :: q else hd :: add e tl
+      | hd :: tl -> if C.compare e hd = Less then e :: q 
+                    else hd :: add e tl
 
     let take (q : queue) : elt * queue =
       match q with
@@ -103,7 +104,6 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       assert (is_empty empty)
     
     let test_add () =
-      (* xx make variables look nicer *)
       let b = C.generate () in
       let y = add b empty in
       let _ = assert (y = [b]) in
@@ -114,7 +114,6 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       assert (add a d = [a; b; c])
     
     let test_take () = 
-      (* xx simplify these by using commas.. if time *)
       let b = C.generate () in
       let a = C.generate_lt b in
       let c = C.generate_gt b in
@@ -179,10 +178,10 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     let is_empty t = (t = empty)
 
-    let add (e : elt) (q : queue) : queue = 
-      T.insert e q
+    let add (e : elt) (q : queue) : queue = T.insert e q
     
-    let take (q : queue) : elt * queue  = let x = T.getmin q in (x, (T.delete x q))
+    let take (q : queue) : elt * queue  = 
+      let x = T.getmin q in (x, (T.delete x q))
     
     let to_string (q: queue) : string = T.to_string q
     
@@ -192,7 +191,6 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let a = empty in 
       assert (is_empty a)
 
-(* xx remember to use BinSTree for assert statment (T dot whatever) *)
     let add_test () = 
       let a = T.empty in 
       let b = C.generate () in
@@ -306,7 +304,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       | Empty -> "Empty"
       | Tree t -> to_string' t
 
-    let is_empty (q : queue) = (q = Empty)
+    let is_empty (q : queue) : bool = (q = Empty)
 
     (* Adds element e to the queue q *)
     let add (e : elt) (q : queue) : queue =
@@ -363,9 +361,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     ..................................................................*)
     let get_top (t : tree) : elt =
       match t with
-      | Leaf (e) -> e
-      | OneBranch (e , _) -> e 
-      | TwoBranch (_, e, _, _) -> e
+      | Leaf (e) | OneBranch (e , _) | TwoBranch (_, e, _, _) -> e
 
     (*..................................................................
     Takes a tree, and if the top node is greater than its children,
@@ -375,10 +371,10 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     ..................................................................*)
     let rec fix (t : tree) : tree =
       let replace_top (x : elt) (y : tree) =
-      match y with
-      | Leaf e -> Leaf x
-      | OneBranch (e1, e2) -> OneBranch (x, e2)
-      | TwoBranch (balance, e1, t1, t2) -> TwoBranch (balance, x, t1, t2)
+        match y with
+        | Leaf e -> Leaf x
+        | OneBranch (e1, e2) -> OneBranch (x, e2)
+        | TwoBranch (balance, e1, t1, t2) -> TwoBranch (balance, x, t1, t2)
       in 
       match t with 
       | Leaf e -> t 
@@ -392,11 +388,11 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
         | Less | Equal -> 
           (match C.compare e1 a with
            | Less | Equal -> t
-           | Greater -> TwoBranch (balance, a, fix (replace_top e1 t1), t2))
+           | Greater -> fix (TwoBranch (balance, a, replace_top e1 t1, t2)))
         | Greater ->
           (match C.compare e1 b with
            | Less | Equal -> t 
-           | Greater -> TwoBranch (balance, b, t1, fix (replace_top e1 t2)))
+           | Greater -> fix (TwoBranch (balance, b, t1, replace_top e1 t2)))
         )
 
     let extract_tree (q : queue) : tree =
@@ -423,7 +419,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       match t with
       | Leaf e -> (e, Empty)
       | OneBranch (e1, e2) -> (e2, Tree (Leaf e1))
-      | TwoBranch (Even, e, t1, t2) -> (* why is Even not changing color?*)
+      | TwoBranch (Even, e, t1, t2) -> 
         let (last, q1) = get_last t2 in
         (match q1 with 
         | Empty -> (last, Tree (OneBranch (e, get_top t1)))
@@ -461,12 +457,11 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
           | Empty -> (e, Tree (fix (OneBranch (last, get_top t1))))
           | Tree t2' -> (e, Tree (fix (TwoBranch (Odd, last, t1, t2')))))
           (* Implement the odd case! *)
-      | TwoBranch (Odd, e, t1, t2) ->  (* xx why are there _ before everything*)
+      | TwoBranch (Odd, e, t1, t2) -> 
         let (last, q1') = get_last t1 in
         (match q1' with 
-         | Empty -> (e, Tree (fix (OneBranch (last, get_top t2)))) 
-         (* are we sure that odd returns odd??? *)
-         | Tree t1' -> (e, Tree (fix (TwoBranch (Odd, last, t1', t2))))) 
+         | Empty -> (e, Tree (fix (OneBranch (last, get_top t2))))
+         | Tree t1' -> (e, Tree (fix (TwoBranch (Even, last, t1', t2))))) 
 
     let is_empty_test () =
       let a = empty in 
@@ -474,7 +469,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     
     let add_test () =
       let x = C.generate () in
-      let x1 = add x Empty in (* empty or Empty??? *)
+      let x1 = add x Empty in
       let _ = assert (x1 = Tree (Leaf x)) in
       let y = C.generate_gt x in
       let w = add y x1 in
@@ -484,36 +479,26 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let _ = assert (add z w = Tree (TwoBranch (Even, z, Leaf y, Leaf x))) in
       let u = C.generate_lt z in
       assert (add u v = Tree (TwoBranch(Odd, u, OneBranch(z, y), Leaf x)))
-      
-      (*
-      let t = C.generate_gt y in
-      let p = add t v in
-      assert (p = Tree (TwoBranch (Even, z, OneBranch(z, y), OneBranch(x, t))))
-      
-      let r = C.generate_lt u in
-      let _ = assert (add r p = Tree (TwoBranch (Even, r, TwoBranch (Even, z, Leaf x, Leaf t), Leaf y))) in
-      let q = C.generate_gt t in
-      assert (add q p = Tree (TwoBranch (Even, z, TwoBranch (Even, x, Leaf q, Leaf t), Leaf y))) *)
-
-(*       let s = add y v in
-      assert (s = Tree (TwoBranch (Even, z, Leaf y, Leaf x))) *)
-
-(*     let take_test () =
-
-    let get_last_test () =
-
-    let fix_test () = *)
-
+    
+(*     let fix_test () = 
+      let b = C.generate () in 
+      let a = C.generate_lt b in
+      let c = C.generate_gt b in
+      let d = Tree (Leaf c) in 
+      let e = Tree (OneBranch (b, a)) *)
+    
+    (* let get_last_test () =
+      let b = C.generate () in 
+      let a = C.generate_lt b in
+      let c = C.generate_gt b in
+      let d = Tree (Leaf c) in 
+      let e = Tree (OneBranch (b, a)) *)
 
     let run_tests () = 
       is_empty_test ();
       add_test ();
+      (* fix_test () = *)
     ()
-
-(*
-      take ()
-      add ()
-      fix () *)
 
   end
 
@@ -594,22 +579,23 @@ let selectionsort = sort list_module
 (* You should test that these sorts all correctly work, and that lists
    are returned in non-decreasing order. *)
 
-let sort_tests =
-    let a = [1;4;2;3] in
-    let b = [1;2;3;4] in
-    let _ = assert (heapsort a = b) in
-    let _ = assert (treesort a = b) in
-    let _ = assert (selectionsort a = b) in
-    let c = [0] in
-    let _ = assert (heapsort c = c) in
-    let _ = assert (treesort c = c) in
-    let _ = assert (selectionsort c = c) in
-    let d = [5;3;1] in
-    let e = [1;3;5] in
-    let _ = assert (heapsort d = e) in
-    let _ = assert (treesort d = e) in
-    assert (selectionsort d = e)
+let test_on_all (l: int list) =
+    let correct = List.sort (fun a b -> if a<b then -1 else if a>b then 1 else 0) l in
+    let _ = assert (heapsort l = correct) in
+    let _ = assert (treesort l = correct) in
+    assert (selectionsort l = correct)
 
+let sort_tests =
+    let _ = test_on_all [3] in
+    let _ = test_on_all [5; 2] in
+    let _ = test_on_all [6; 2; 8] in
+    let _ = test_on_all [5; 5; 4; 1] in
+    let _ = test_on_all [6; 6; 6; 2; 2] in
+    let _ = test_on_all [1; 1] in
+    let _ = test_on_all [0] in
+    let _ = test_on_all [-1; 3; 7] in
+    let _ = test_on_all [-1; -420; 420] in
+    test_on_all [-420]
 
 (*......................................................................
 Section 4: Challenge problem: Sort function
@@ -651,4 +637,4 @@ on average, not in total).  We care about your responses and will use
 them to help guide us in creating future assignments.
 ......................................................................*)
 
-let minutes_spent_on_part () : int = failwith "not provided" ;;
+let minutes_spent_on_part () : int = 800 ;;

@@ -97,6 +97,7 @@ module BinSTree (C : COMPARABLE)
      
     (* The type for a collection, a binary search tree *)
     type tree = Leaf | Branch of tree * elt list * tree
+    
     type collection = tree 
 
     (* Representation of the empty collection *)
@@ -129,7 +130,7 @@ module BinSTree (C : COMPARABLE)
     Hint: multiple values might compare Equal to x, but that doesn't
     necessarily mean that x itself is in the tree.
     ..................................................................*)
-      let rec search (x : elt) (t : tree) : bool =
+    let rec search (x : elt) (t : tree) : bool =
       match t with
       | Leaf -> false
       | Branch (l, lst, r) ->
