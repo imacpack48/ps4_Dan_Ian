@@ -82,32 +82,36 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     let is_empty (q : queue) : bool = (q = [])
     
     let rec add (e : elt) (q : queue) : queue =
-          match q with
-          | [] -> [e]
-          | hd :: tl -> if C.compare e hd = Less then e :: q else hd :: add e tl
+      match q with
+      | [] -> [e]
+      | hd :: tl -> if C.compare e hd = Less then e :: q else hd :: add e tl
 
     let take (q : queue) : elt * queue =
       match q with
       | [] -> raise QueueEmpty
       | hd :: tl -> (hd, tl)
-
+ 
     let test_empty () = 
-      assert (empty = [])
+      let x = C.generate () in 
+      let _ = assert (empty = []) in
+      assert (not (empty = [x]))
     
     let test_is_empty () = 
       let a = C.generate () in
       let b = add a empty in
-      assert (not is_empty b)
+      let _ = assert (not (is_empty b)) in
       assert (is_empty empty)
     
     let test_add () =
-      let x = C.generate () in
-      let y = add x empty in
-      assert (y = [x]);
-      let a = C.generate_gt x in
-      assert (add y a = [x; a]);
-      let b = C.generate_lt x in
-      assert (add y a = [b; x; a]);
+      (* xx make variables look nicer *)
+      let b = C.generate () in
+      let y = add b empty in
+      let _ = assert (y = [b]) in
+      let c = C.generate_gt b in
+      let d = add c y in
+      let _ = assert (d = [c; b]) in
+      let a = C.generate_lt b in
+      assert (add a d = [a; b; c])
     
     let test_take () = 
       (* xx simplify these by using commas.. if time *)
@@ -118,15 +122,16 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let y = add b x in
       let z = add c y in
       let d = take z in
-      assert (d = (a, [b; c]));
-      (* xx syntax could be wrong... *)
-      assert (try take empty with | QueueEmpty -> true);
-    
-    let run_tests () =
+      assert (d = (a, [b; c]))
+      (* xx DAN FIX THIS... it tests for exception...
+      assert ((try take empty with QueueEmpty -> true)=true) *)
+
+  let run_tests () =
       test_empty ();
       test_is_empty ();
       test_add ();
       test_take ();
+    () 
 
 (* IMPORTANT: Don't change the implementation of to_string. *)
     let to_string (q: queue) : string =
@@ -164,7 +169,6 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
        e.g. T.insert *)
     module T = (BinSTree(C) : (ORDERED_COLLECTION with type elt = C.t))
 
-    (* Implement the remainder of the module. *)
     type elt = C.t
 
     type tree = T.collection
@@ -175,14 +179,12 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     let is_empty t = (t = Empty)
 
-    let add (e : elt) (q : queue) : queue =
-    (* inefficient code *)
-    match q with
-    | Empty -> Tree (T.insert e T.empty)
-    | Tree x -> Tree (T.instert e x)
+    let add (e : elt) (q : queue) : queue = Tree (T.insert e q)
 
     let take (q : queue) : elt * queue  = 
-      let x = T.getmin q in (x, T.delete x q)
+      (* xx check this. what about empty queue *)
+      let x = T.getmin q in 
+      (x, T.delete x q)
 
     (* These are my tests. *)
 
@@ -194,16 +196,17 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let a = empty in 
       let b = C.generate () in
       let c = add b a in
-      assert (c = Branch(Leaf, [b], Leaf))
+      let _ = assert (c = Branch(Leaf, [b], Leaf)) in
       let d = C.generate_gt b in
       let e = add d c in
-      assert (e = Branch (Leaf, [b], Branch (Leaf, [d], Leaf)))
+      let _ = assert (e = Branch (Leaf, [b], Branch (Leaf, [d], Leaf))) in
       let f = take e in 
       assert (f = (b, Branch (Leaf, [d], Leaf)))
 
     let run_tests () = 
-      is_empty_test ()
-      add_take_test ()
+      is_empty_test ();
+      add_take_test ();
+    ()
 
       (* Use size to test take *)
       (* Your nodes should track whether they are odd or even.
@@ -372,7 +375,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       | OneBranch (e1, e2) -> 
         (match C.compare e1 e2 with
         | Less | Equal -> t
-        | Greater -> OneBranch (e2, e1)
+        | Greater -> OneBranch (e2, e1))
       | TwoBranch (balance, e1, t1, t2) -> 
         let a = get_top t1 in
         let b = get_top t2 in 
@@ -420,7 +423,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
         let (last, q2) = get_last t1 in
         (match q2 with 
         | Empty -> (last, Tree (OneBranch (e, get_top t2)))
-        | Tree t -> (last, Tree (TwoBranch (Even, e, t, t2)))
+        | Tree t -> (last, Tree (TwoBranch (Even, e, t, t2))))
 
     (*..................................................................
     Implements the algorithm described in the writeup. You must finish
@@ -452,9 +455,9 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       | TwoBranch (Odd, e, t1, t2) ->  (* xx why are there _ before everything*)
         let (last, q1') = get_last t1 in
         (match q1' with 
-         | Empty -> (e, Tree (fix (OneBranch (last, get_top t2)) 
+         | Empty -> (e, Tree (fix (OneBranch (last, get_top t2)))) 
          (* are we sure that odd returns odd??? *)
-         | Tree t1' -> (e, Tree (fix (TwoBranch (Odd, last, t1', t2)))))  
+         | Tree t1' -> (e, Tree (fix (TwoBranch (Odd, last, t1', t2))))) 
 
     let is_empty_test () =
       let a = empty in 
@@ -466,26 +469,25 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
          to change it, I'll save the test for fix. *)
       let x = C.generate () in
       let x1 = add x Empty in (* empty or Empty??? *)
-      assert (x1 = Leaf x)
+      let _ = assert (x1 = Leaf x) in
       let y = C.generate_gt x in
       let w = add y x1 in
-      assert (w = OneBranch (x, y))
+      let _ = assert (w = OneBranch (x, y)) in
       let z = C.generate_lt x in
       let v = add z w in
-      assert (v = OneBranch(z, x))
-      assert (add z w = TwoBranch (Even, z, Leaf x, Leaf y))
+      let _ = assert (v = OneBranch(z, x)) in
+      let _ = assert (add z w = TwoBranch (Even, z, Leaf x, Leaf y)) in
       let s = add y v in
-      assert (s = TwoBranch (Even, z, Leaf x, Leaf y))
+      let _ = assert (s = TwoBranch (Even, z, Leaf x, Leaf y)) in
       let u = C.generate_lt z in
-      assert(add u s = TwoBranch(Odd, u, OneBranch(z, x), Leaf y))
+      let _ = assert(add u s = TwoBranch(Odd, u, OneBranch(z, x), Leaf y)) in
       let t = C.generate_gt y in
       let p = add t s in
-      assert (p = TwoBranch (Odd, z, OneBranch(x, t), Leaf y))
+      let _ = assert (p = TwoBranch (Odd, z, OneBranch(x, t), Leaf y)) in
       let r = C.generate_lt u in
-      assert (add r p = TwoBranch (Even, r, TwoBranch (Even, z, Leaf x, Leaf t), Leaf y))
+      let _ = assert (add r p = TwoBranch (Even, r, TwoBranch (Even, z, Leaf x, Leaf t), Leaf y)) in
       let q = C.generate_gt t in
       assert (add q p = TwoBranch (Even, z, TwoBranch (Even, x, Leaf q, Leaf t), Leaf y))
-
 
 (*     let take_test () =
 
@@ -494,7 +496,7 @@ module BinaryHeap (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     let fix_test () = *)
 
 
-    let run_tests () = failwith "not implemented"
+    let run_tests () = failwith "not implemented" 
 (*       is_empty ()
       take ()
       get_last ()

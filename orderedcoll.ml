@@ -115,14 +115,14 @@ module BinSTree (C : COMPARABLE)
     let rec insert (x : elt) (t : tree) : tree =
       match t with 
       | Leaf -> Branch (Leaf, [x], Leaf) 
-      | Branch (left, lst, right) ->
+      | Branch (l, lst, r) ->
         match lst with
         | [] -> raise (Failure "Error: Empty List" )
         | hd :: tl -> 
           match C.compare hd x with
-          | Less -> Branch (left, lst, insert x right)
-          | Greater -> Branch (insert x left, lst, right)
-          | Equal -> Branch (left, x::lst, right)
+          | Less -> Branch (l, lst, insert x r)
+          | Greater -> Branch (insert x l, lst, r)
+          | Equal -> Branch (l, x::lst, r)
 
     (*..................................................................
     search -- Returns true if the element x is in tree t, else false.
@@ -132,13 +132,13 @@ module BinSTree (C : COMPARABLE)
       let rec search (x : elt) (t : tree) : bool =
       match t with
       | Leaf -> false
-      | Branch (left, lst, right) ->
+      | Branch (l, lst, r) ->
         match lst with 
         | [] -> raise (Failure "Error: Empty List on Branch")
         | hd :: tl ->
           match C.compare hd x with
-          | Less -> search x left
-          | Greater -> search x right
+          | Less -> search x l
+          | Greater -> search x r
           | Equal -> true
 
     (* pull_min -- A useful function for removing the node with the
@@ -334,7 +334,6 @@ module IntTree = BinSTree(IntCompare)
        
 (* Please read the entirety of "tests.ml" for an explanation of how
 testing works. *)
-
                          
 (*======================================================================
 Time estimate

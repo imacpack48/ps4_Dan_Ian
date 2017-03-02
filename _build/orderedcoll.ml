@@ -115,14 +115,14 @@ module BinSTree (C : COMPARABLE)
     let rec insert (x : elt) (t : tree) : tree =
       match t with 
       | Leaf -> Branch (Leaf, [x], Leaf) 
-      | Branch (left, lst, right) ->
+      | Branch (l, lst, r) ->
         match lst with
         | [] -> raise (Failure "Error: Empty List" )
         | hd :: tl -> 
           match C.compare hd x with
-          | Less -> Branch (left, lst, insert x right)
-          | Greater -> Branch (insert x left, lst, right)
-          | Equal -> Branch (left, x::lst, right)
+          | Less -> Branch (l, lst, insert x r)
+          | Greater -> Branch (insert x l, lst, r)
+          | Equal -> Branch (l, x::lst, r)
 
     (*..................................................................
     search -- Returns true if the element x is in tree t, else false.
@@ -132,13 +132,13 @@ module BinSTree (C : COMPARABLE)
       let rec search (x : elt) (t : tree) : bool =
       match t with
       | Leaf -> false
-      | Branch (left, lst, right) ->
+      | Branch (l, lst, r) ->
         match lst with 
         | [] -> raise (Failure "Error: Empty List on Branch")
         | hd :: tl ->
           match C.compare hd x with
-          | Less -> search x left
-          | Greater -> search x right
+          | Less -> search x l
+          | Greater -> search x r
           | Equal -> true
 
     (* pull_min -- A useful function for removing the node with the
@@ -255,7 +255,7 @@ module BinSTree (C : COMPARABLE)
       let z = C.generate_lt x in
       let t = insert z t in
       assert (t = Branch(Branch(Leaf, [z], Leaf),[x;x],
-       Branch(Leaf, [y], Leaf)));
+      Branch(Leaf, [y], Leaf)));
       ()
   
     (* Insert a bunch of elements, and test to make sure that we
@@ -264,7 +264,7 @@ module BinSTree (C : COMPARABLE)
       let x = C.generate () in
       let t = insert x empty in
       assert (search x t);
-      let order = [ true; false; true; true; true; false; false] in
+      let order = [true; false; true; true; true; false; false] in
       let full_tree, values_inserted =
         List.fold_right
           (fun current_order (tree_so_far, values_so_far) ->
@@ -334,7 +334,6 @@ module IntTree = BinSTree(IntCompare)
        
 (* Please read the entirety of "tests.ml" for an explanation of how
 testing works. *)
-
                          
 (*======================================================================
 Time estimate
