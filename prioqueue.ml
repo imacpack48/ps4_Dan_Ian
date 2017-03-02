@@ -50,7 +50,7 @@ sig
   val take : queue -> elt * queue
 
   (* Returns a string representation of the queue *)
-(*  val to_string : queue -> string *)
+  val to_string : queue -> string
 
   (* Runs invariant checks on the implementation of this binary tree.
      May raise Assert_failure exception *)
@@ -218,6 +218,10 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       (* Your nodes should track whether they are odd or even.
          This will help you keep your tree balanced at all times. 
          write size function that helps with implementation of take *)
+    (* to_string -- Generates a string representation of a binary
+       search tree, useful for testing! *)
+    let to_string (q: queue) =
+      ""
   end
 
 (*......................................................................
