@@ -122,7 +122,7 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       let y = add b x in
       let z = add c y in
       let d = take z in
-      assert (d = (a, [b; c]))
+      let _ = assert (d = (a, [b; c])) in
       assert (try take empty = (a, x) with QueueEmpty -> true)
 
   let run_tests () =
@@ -182,8 +182,7 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
     let add (e : elt) (q : queue) : queue = 
       T.insert e q
     
-    let take (q : queue) : elt * queue  = 
-      let x = T.getmin q in (x, (T.delete x q))
+    let take (q : queue) : elt * queue  = let x = T.getmin q in (x, (T.delete x q))
     
     let to_string (q: queue) : string = T.to_string q
     
@@ -194,20 +193,26 @@ module TreeQueue (C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       assert (is_empty a)
 
 (* xx remember to use BinSTree for assert statment (T dot whatever) *)
-    let add_take_test () = 
+    let add_test () = 
       let a = T.empty in 
       let b = C.generate () in
       let c = add b a in
       let _ = assert (c = (T.insert b a)) in
       let d = C.generate_gt b in
       let e = add d c in
-      let _ = assert (e = (T.insert d (T.insert b T.empty))) in
-      let f = take e in 
-      assert (f = (b, (T.insert d (T.insert b T.empty)))) 
+      assert (e = (T.insert d (T.insert b T.empty))) 
+
+      let take_test () =
+      let a = T.empty in 
+      let b = C.generate () in
+      let c = C.generate_gt b in
+      let d = add c (add b a) in
+      assert (take d = (b, T.delete b d))
 
     let run_tests () = 
+      add_test ();
       is_empty_test ();
-      add_take_test (); 
+      take_test ();
     ()
 
   end

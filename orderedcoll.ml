@@ -205,9 +205,9 @@ module BinSTree (C : COMPARABLE)
     let rec getmin (t : tree) : elt = 
       match t with
       | Leaf -> raise Empty
-      | Branch (left, lst, right) -> getmin left
       | Branch (Leaf, lst, right) -> List.hd (List.rev lst)
-
+      | Branch (left, lst, right) -> getmin left
+      
     (*..................................................................
     getmax -- Returns the maximum value of the tree t. Similarly should
     return the last element in the matching list. 
