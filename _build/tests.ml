@@ -84,7 +84,7 @@ let _ = IntListQueue.run_tests ()
 let _ = IntTreeQueue.run_tests ()
 let _ = IntBinaryHeap.run_tests ()
 let _ = IntTree.run_tests ()
-
+let _ = sort_tests
 (* 
 ........................................................................
 REQUIRED TESTING:

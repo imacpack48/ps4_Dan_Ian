@@ -14,7 +14,7 @@ ocamlfind ocamldep -modules prioqueue.ml > prioqueue.ml.depends # cached
 # Target: prioqueue.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:prioqueue.cmo, file:prioqueue.ml, implem, ocaml, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
 ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o prioqueue.cmo prioqueue.ml # cached
 # Target: tests.cmo, tags: { byte, compile, extension:cmo, extension:ml, file:tests.cmo, file:tests.ml, implem, ocaml, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
-ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o tests.cmo tests.ml
+ocamlfind ocamlc -c -thread -strict-sequence -w A-4-33-40-41-42-43-34-44 -o tests.cmo tests.ml # cached
 # Target: tests.byte, tags: { byte, dont_link_with, extension:byte, file:tests.byte, link, ocaml, program, quiet, strict-sequence, thread, traverse, use_str, warn(A-4-33-40-41-42-43-34-44) }
 ocamlfind ocamlc -linkpkg str.cma -thread order.cmo orderedcoll.cmo prioqueue.cmo tests.cmo -o tests.byte
 # Compilation successful.
