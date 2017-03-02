@@ -38,7 +38,8 @@ definition of the BinSTree functor.
 
 So, for instance, we can say:
 ......................................................................*)
-open Orderedcoll
+open Orderedcoll;;
+open Prioqueue;;
 
 type element = IntTree.elt
 
@@ -79,9 +80,9 @@ clients of IntTree and other modules that satisfy the BINTREE
 signature.  So, we can run our tests on IntTree with the following
 invocation:
 ......................................................................*)
-let _ = ListQueue.run_tests ()
-let _ = TreeQueue.run_tests ()
-let _ = BinaryHeap.run_tests ()
+let _ = IntListQueue.run_tests ()
+let _ = IntTreeQueue.run_tests ()
+let _ = IntBinaryHeap.run_tests ()
 let _ = IntTree.run_tests ()
 
 (* 

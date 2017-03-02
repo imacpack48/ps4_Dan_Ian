@@ -45,7 +45,7 @@ sig
   val getmax : collection -> elt
 
   (* Return a string of the given collection. *)
-  val to_string : collection -> string
+ (* val to_string : collection -> string *)
  
   (* Run invariant checks on the implementation of this binary collection.
      May raise Assert_failure exception *)
