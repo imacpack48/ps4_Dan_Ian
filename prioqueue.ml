@@ -93,6 +93,8 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
 
     let test_empty () = 
       assert (empty = [])
+      let x = C.generate () in 
+      assert (not empty = [x])
     
     let test_is_empty () = 
       let a = C.generate () in
@@ -101,13 +103,14 @@ module ListQueue(C : COMPARABLE) : (PRIOQUEUE with type elt = C.t) =
       assert (is_empty empty)
     
     let test_add () =
-      let x = C.generate () in
-      let y = add x empty in
-      assert (y = [x]);
-      let a = C.generate_gt x in
-      assert (add y a = [x; a]);
-      let b = C.generate_lt x in
-      assert (add y a = [b; x; a]);
+      let b = C.generate () in
+      let y = add b empty in
+      assert (y = [b]);
+      let c = C.generate_gt c in
+      let d = add c y
+      assert (d = [b; c]);
+      let a = C.generate_lt b in
+      assert (add a d = [a; b; c]);
     
     let test_take () = 
       (* xx simplify these by using commas.. if time *)
